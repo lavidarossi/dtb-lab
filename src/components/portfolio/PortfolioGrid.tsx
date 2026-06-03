@@ -104,9 +104,11 @@ export function PortfolioGrid() {
                     src={item.src}
                     alt={item.alt}
                     fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) calc(50vw - 8px), (max-width: 1024px) calc(33vw - 10px), calc(25vw - 12px)"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 transition-opacity opacity-0 [&[data-loaded='true']]:opacity-100"
+                    quality={80}
                     loading="lazy"
+                    onLoad={e => (e.currentTarget as HTMLImageElement).setAttribute('data-loaded', 'true')}
                   />
                 )}
 

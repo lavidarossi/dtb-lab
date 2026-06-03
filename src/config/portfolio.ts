@@ -151,9 +151,9 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
   },
 
   // ── MOTION ────────────────────────────────────────────────────────────────
-  { id: 'm01', title: 'House of Revolt',       category: 'motion', type: 'video', src: `${M}/House of Revolt.mp4`,         alt: 'House of Revolt motion promo by DTB LAB', width: 1080, height: 1920 },
-  { id: 'm02', title: 'Tourdates 05 - IOSIO',  category: 'motion', type: 'video', src: `${M}/Tourdates 05 - IOSIO.mp4`,   alt: 'Tourdates 05 IOSIO motion video by DTB LAB', width: 1080, height: 1920 },
-  { id: 'm03', title: 'Tourdates 06 - D-sturb', category: 'motion', type: 'video', src: `${M}/Tourdates 06 - D-sturb.mp4`, alt: 'Tourdates 06 D-sturb motion video by DTB LAB', width: 1080, height: 1920 },
+  { id: 'm01', title: 'House of Revolt',        category: 'motion', type: 'video', src: `${M}/house-of-revolt.mp4`,         alt: 'House of Revolt motion promo by DTB LAB',      width: 1080, height: 1920 },
+  { id: 'm02', title: 'Tourdates 05 - IOSIO',   category: 'motion', type: 'video', src: `${M}/tourdates-05-iosio.mp4`,     alt: 'Tourdates 05 IOSIO motion video by DTB LAB',   width: 1080, height: 1920 },
+  { id: 'm03', title: 'Tourdates 06 - D-sturb', category: 'motion', type: 'video', src: `${M}/tourdates-06-d-sturb.mp4`,   alt: 'Tourdates 06 D-sturb motion video by DTB LAB', width: 1080, height: 1920 },
 ]
 
 // Featured items in the exact order requested

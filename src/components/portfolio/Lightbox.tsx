@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -16,11 +16,12 @@ interface LightboxProps {
 
 export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: LightboxProps) {
   const [slideIdx, setSlideIdx] = useState(0)
+  const touchStartX = useRef(0)
+  const touchStartY = useRef(0)
 
-  // Reset slide when item changes
   useEffect(() => { setSlideIdx(0) }, [item?.id])
 
-  // Keyboard nav
+  // Keyboard navigation
   useEffect(() => {
     if (!item) return
     const handler = (e: KeyboardEvent) => {
@@ -46,9 +47,35 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
 
   if (!item) return null
 
-  const slides = item.slides ?? [item.src]
+  const slides  = item.slides ?? [item.src]
   const isBundle = slides.length > 1
   const currentSrc = slides[slideIdx]
+
+  const goNext = () => {
+    if (isBundle && slideIdx < slides.length - 1) setSlideIdx(i => i + 1)
+    else if (hasNext) onNext?.()
+  }
+  const goPrev = () => {
+    if (isBundle && slideIdx > 0) setSlideIdx(i => i - 1)
+    else if (hasPrev) onPrev?.()
+  }
+
+  // Touch swipe handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current)
+    if (Math.abs(dx) > 50 && dy < 80) {
+      if (dx < 0) goNext()
+      else goPrev()
+    }
+  }
+
+  const canGoPrev = (isBundle && slideIdx > 0) || (!isBundle && hasPrev)
+  const canGoNext = (isBundle && slideIdx < slides.length - 1) || (!isBundle && hasNext)
 
   return (
     <AnimatePresence>
@@ -61,35 +88,38 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-base/96 backdrop-blur-md"
           onClick={onClose}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
           role="dialog"
           aria-modal
-          aria-label={`${item.title}${isBundle ? ` — slide ${slideIdx + 1} of ${slides.length}` : ''}`}
+          aria-label={`${item.title}${isBundle ? ` — ${slideIdx + 1}/${slides.length}` : ''}`}
         >
           {/* Close */}
           <button
-            className="absolute top-4 right-4 p-2 text-cream/50 hover:text-cream transition-colors rounded-lg hover:bg-surface/40 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            onClick={onClose} aria-label="Close"
+            className="absolute top-4 right-4 p-2 text-cream/50 hover:text-cream transition-colors rounded-lg hover:bg-surface/40 z-10"
+            onClick={(e) => { e.stopPropagation(); onClose() }}
+            aria-label="Close"
           >
             <X size={22} />
           </button>
 
-          {/* Outer prev (between grid items) — only when at first slide */}
-          {hasPrev && (!isBundle || slideIdx === 0) && (
+          {/* Prev */}
+          {canGoPrev && (
             <button
-              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 p-2 text-cream/40 hover:text-cream transition-colors rounded-lg hover:bg-surface/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              onClick={e => { e.stopPropagation(); onPrev?.() }}
-              aria-label="Previous project"
+              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 p-3 text-cream/60 hover:text-cream transition-colors rounded-lg hover:bg-surface/40 z-10"
+              onClick={(e) => { e.stopPropagation(); goPrev() }}
+              aria-label="Previous"
             >
               <ChevronLeft size={28} />
             </button>
           )}
 
-          {/* Outer next (between grid items) — only when at last slide */}
-          {hasNext && (!isBundle || slideIdx === slides.length - 1) && (
+          {/* Next */}
+          {canGoNext && (
             <button
-              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 p-2 text-cream/40 hover:text-cream transition-colors rounded-lg hover:bg-surface/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              onClick={e => { e.stopPropagation(); onNext?.() }}
-              aria-label="Next project"
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 p-3 text-cream/60 hover:text-cream transition-colors rounded-lg hover:bg-surface/40 z-10"
+              onClick={(e) => { e.stopPropagation(); goNext() }}
+              aria-label="Next"
             >
               <ChevronRight size={28} />
             </button>
@@ -105,7 +135,7 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
             className="relative flex flex-col items-center gap-4 max-w-3xl w-full px-12 sm:px-16"
             onClick={e => e.stopPropagation()}
           >
-            {/* ── IMAGE ── */}
+            {/* Image */}
             {item.type === 'image' && (
               <div className="relative w-full">
                 <AnimatePresence mode="wait">
@@ -122,34 +152,15 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
                       width={item.width}
                       height={item.height}
                       className="rounded-lg object-contain max-h-[72vh] w-full"
+                      quality={80}
                       priority
                     />
                   </motion.div>
                 </AnimatePresence>
-
-                {/* Bundle inner prev/next */}
-                {isBundle && slideIdx > 0 && (
-                  <button
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full p-1.5 text-cream/50 hover:text-cream transition-colors"
-                    onClick={() => setSlideIdx(i => i - 1)}
-                    aria-label="Previous slide"
-                  >
-                    <ChevronLeft size={22} />
-                  </button>
-                )}
-                {isBundle && slideIdx < slides.length - 1 && (
-                  <button
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full p-1.5 text-cream/50 hover:text-cream transition-colors"
-                    onClick={() => setSlideIdx(i => i + 1)}
-                    aria-label="Next slide"
-                  >
-                    <ChevronRight size={22} />
-                  </button>
-                )}
               </div>
             )}
 
-            {/* ── VIDEO ── */}
+            {/* Video */}
             {item.type === 'video' && (
               <video
                 src={item.src}
@@ -173,9 +184,9 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
                   {slides.map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => setSlideIdx(i)}
+                      onClick={(e) => { e.stopPropagation(); setSlideIdx(i) }}
                       aria-label={`Slide ${i + 1}`}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${i === slideIdx ? 'bg-accent w-3' : 'bg-cream/30'}`}
+                      className={`h-1.5 rounded-full transition-all duration-200 ${i === slideIdx ? 'bg-accent w-3' : 'bg-cream/30 w-1.5'}`}
                     />
                   ))}
                 </div>

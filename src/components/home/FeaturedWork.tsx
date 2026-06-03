@@ -67,9 +67,11 @@ export function FeaturedWork() {
                     src={item.src}
                     alt={item.alt}
                     fill
-                    sizes="(max-width: 640px) 50vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
+                    sizes="(max-width: 640px) calc(50vw - 8px), (max-width: 1280px) calc(33vw - 10px), calc(25vw - 12px)"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 transition-opacity opacity-0 [&[data-loaded='true']]:opacity-100"
+                    quality={80}
+                    priority
+                    onLoad={e => (e.currentTarget as HTMLImageElement).setAttribute('data-loaded', 'true')}
                   />
                 )}
 
