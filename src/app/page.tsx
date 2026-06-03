@@ -21,8 +21,8 @@ export default function HomePage() {
       <HeroSection />
       <StatusTicker />
       <BrandIntro />
-      <ServicesSection />
       <FeaturedWork />
+      <ServicesSection />
 
       {/* ── WE BUILD WEBSITES CTA ── */}
       <section className="py-24 sm:py-32 px-4 sm:px-6 bg-base relative overflow-hidden">
