@@ -293,41 +293,8 @@ export function HeroSection() {
       ref={heroRef}
       id="hero"
       style={{ height: '100svh', minHeight: 480 }}
-      className="relative overflow-hidden bg-[#060a12] cursor-pointer"
-      aria-label="Hero — Enter the Lab. Click to enter."
-      onClick={() => {
-        const about = document.getElementById('about')
-        if (!about) return
-
-        type L = { stop: () => void; start: () => void }
-        const lenis = (window as Window & { __lenis?: L }).__lenis
-        // Pause Lenis so it cannot override scrollTop on each frame
-        lenis?.stop()
-
-        const startY  = window.scrollY
-        const endY    = about.getBoundingClientRect().top + window.scrollY
-        const dur     = 1100  // ms
-        const t0      = performance.now()
-
-        // Ease-in-out quad
-        const ease = (p: number) => p < 0.5 ? 2*p*p : -1 + (4 - 2*p)*p
-
-        const tick = (now: number) => {
-          const p = Math.min((now - t0) / dur, 1)
-          const y = startY + (endY - startY) * ease(p)
-          // Write directly — bypasses both Lenis and GSAP
-          document.documentElement.scrollTop = y
-          document.body.scrollTop = y          // Safari
-          ScrollTrigger.update()               // keep pin animation in sync
-          if (p < 1) {
-            requestAnimationFrame(tick)
-          } else {
-            lenis?.start()                     // hand control back to Lenis
-          }
-        }
-
-        requestAnimationFrame(tick)
-      }}
+      className="relative overflow-hidden bg-[#060a12]"
+      aria-label="Hero — Enter the Lab"
     >
       {/* ── Scene: background photo + screen overlay ─────────────────────────
           This entire div is what GSAP scales during the scroll-zoom. */}
@@ -431,8 +398,21 @@ export function HeroSection() {
 
             <div className="h-px bg-accent/12" aria-hidden />
 
-            {/* Main prompt */}
-            <div className="flex items-center gap-[0.3em]">
+            {/* Main prompt — also a click target */}
+            <button
+              className="flex items-center gap-[0.3em] focus:outline-none"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              onClick={() => {
+                type L = { stop: () => void; start: () => void }
+                const lenis = (window as Window & { __lenis?: L }).__lenis
+                lenis?.stop()
+                const y = document.getElementById('about')?.offsetTop ?? window.innerHeight * 3
+                document.documentElement.scrollTop = y
+                document.body.scrollTop = y
+                ScrollTrigger.update()
+                requestAnimationFrame(() => requestAnimationFrame(() => lenis?.start()))
+              }}
+            >
               <span
                 className="font-mono text-cream tracking-[0.18em] uppercase"
                 style={{ fontSize: '1em' }}
@@ -444,7 +424,7 @@ export function HeroSection() {
                 style={{ width: '0.1em', height: '1em' }}
                 aria-hidden
               />
-            </div>
+            </button>
           </div>
           {/* ↑ closes OS UI z-20 div */}
           </div>
@@ -453,22 +433,34 @@ export function HeroSection() {
         {/* ↑ closes outer screenRef div (matrix3d, no overflow) */}
       </div>
 
-      {/* ── Scroll / swipe hint — OUTSIDE the scene so it never zooms ── */}
-      <div
+      {/* ── Enter button — dedicated click target, z-index above everything ── */}
+      <button
         className="hero-enter-text absolute bottom-8 sm:bottom-10 left-0 right-0
-                   flex flex-col items-center gap-3 pointer-events-none select-none"
-        aria-hidden
+                   flex flex-col items-center gap-3 select-none focus:outline-none"
+        aria-label="Enter the lab — scroll to content"
+        onClick={() => {
+          // Stop Lenis, jump past the pin, restart — simplest reliable approach
+          type L = { stop: () => void; start: () => void }
+          const lenis = (window as Window & { __lenis?: L }).__lenis
+          lenis?.stop()
+          // Instant jump well past the pin so it definitely releases
+          const y = document.getElementById('about')?.offsetTop ?? window.innerHeight * 3
+          document.documentElement.scrollTop = y
+          document.body.scrollTop = y   // Safari
+          ScrollTrigger.update()
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => lenis?.start())
+          })
+        }}
       >
-        <p
-          className="hidden sm:block font-mono font-bold text-base sm:text-lg tracking-[0.35em] uppercase text-cream neon-text-cream"
-        >
+        <span className="hidden sm:block font-mono font-bold text-base sm:text-lg tracking-[0.35em] uppercase text-cream neon-text-cream">
           SCROLL TO ENTER
-        </p>
-        <p className="sm:hidden font-mono font-bold text-base tracking-[0.35em] uppercase text-cream neon-text-cream dvd-bounce">
+        </span>
+        <span className="sm:hidden font-mono font-bold text-base tracking-[0.35em] uppercase text-cream neon-text-cream dvd-bounce">
           SWIPE UP TO ENTER
-        </p>
+        </span>
         <div className="w-px h-8 sm:h-10 bg-gradient-to-b from-cream/60 to-transparent animate-pulse neon-line-cream" />
-      </div>
+      </button>
 
       {/* Reduced-motion fallback: show UI correctly embedded, no zoom */}
       {prefersReduced && (
