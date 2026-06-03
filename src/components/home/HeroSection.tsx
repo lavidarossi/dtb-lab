@@ -102,8 +102,9 @@ export function HeroSection() {
   const heroRef   = useRef<HTMLElement>(null)
   const sceneRef  = useRef<HTMLDivElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
-  const dImgRef        = useRef<HTMLImageElement>(null)
-  const mImgRef        = useRef<HTMLImageElement>(null)
+  const dImgRef   = useRef<HTMLImageElement>(null)
+  const mImgRef   = useRef<HTMLImageElement>(null)
+  const gsapCtxRef = useRef<{ revert: () => void } | null>(null)
   const prefersReduced = useReducedMotion()
 
   // ── Calibrate state (dev/staging only; entire block tree-shaken in prod) ───
@@ -241,8 +242,11 @@ export function HeroSection() {
       }, 0.05)
     })
 
+    gsapCtxRef.current = ctx
+
     return () => {
       ctx.revert()
+      gsapCtxRef.current = null
       ScrollTrigger.getAll().forEach(t => t.kill())
     }
   }, [prefersReduced, showCal])
@@ -403,14 +407,12 @@ export function HeroSection() {
               className="flex items-center gap-[0.3em] focus:outline-none"
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
               onClick={() => {
-                type L = { stop: () => void; start: () => void }
-                const lenis = (window as Window & { __lenis?: L }).__lenis
-                lenis?.stop()
-                const y = document.getElementById('about')?.offsetTop ?? window.innerHeight * 3
-                document.documentElement.scrollTop = y
-                document.body.scrollTop = y
-                ScrollTrigger.update()
-                requestAnimationFrame(() => requestAnimationFrame(() => lenis?.start()))
+                gsapCtxRef.current?.revert()
+                gsapCtxRef.current = null
+                ScrollTrigger.getAll().forEach(t => t.kill())
+                requestAnimationFrame(() => {
+                  document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
+                })
               }}
             >
               <span
@@ -436,20 +438,16 @@ export function HeroSection() {
       {/* ── Enter button — dedicated click target, z-index above everything ── */}
       <button
         className="hero-enter-text absolute bottom-8 sm:bottom-10 left-0 right-0
-                   flex flex-col items-center gap-3 select-none focus:outline-none"
+                   flex flex-col items-center gap-3 select-none focus:outline-none z-[200]"
         aria-label="Enter the lab — scroll to content"
         onClick={() => {
-          // Stop Lenis, jump past the pin, restart — simplest reliable approach
-          type L = { stop: () => void; start: () => void }
-          const lenis = (window as Window & { __lenis?: L }).__lenis
-          lenis?.stop()
-          // Instant jump well past the pin so it definitely releases
-          const y = document.getElementById('about')?.offsetTop ?? window.innerHeight * 3
-          document.documentElement.scrollTop = y
-          document.body.scrollTop = y   // Safari
-          ScrollTrigger.update()
+          // Kill the GSAP pin entirely, then scroll — cleanest approach
+          gsapCtxRef.current?.revert()
+          gsapCtxRef.current = null
+          ScrollTrigger.getAll().forEach(t => t.kill())
+          // DOM resets synchronously; now scroll to #about at its real position
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => lenis?.start())
+            document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
           })
         }}
       >
