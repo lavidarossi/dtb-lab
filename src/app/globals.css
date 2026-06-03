@@ -134,6 +134,15 @@
       0 0 30px rgba(240,232,208,0.3);
   }
 
+  /* Fast fade-in for preloaded lightbox slides */
+  @keyframes fade-in-fast {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .animate-fade-in-fast {
+    animation: fade-in-fast 0.1s ease-out both;
+  }
+
   .neon-line-cream {
     box-shadow: 0 0 8px rgba(240,232,208,0.7), 0 0 16px rgba(240,232,208,0.3);
   }

@@ -21,6 +21,8 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     })
 
     lenis.on('scroll', ScrollTrigger.update)
+    // Expose globally so any component can call lenis.scrollTo()
+    ;(window as Window & { __lenis?: typeof lenis }).__lenis = lenis
 
     const raf = (time: number) => lenis.raf(time * 1000)
     gsap.ticker.add(raf)

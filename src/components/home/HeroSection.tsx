@@ -240,26 +240,9 @@ export function HeroSection() {
       }, 0.05)
     })
 
-    // ── Click anywhere on hero → scroll past the pin (completes the zoom) ──
-    const hero2 = heroRef.current
-    if (hero2) {
-      const onClick = () => {
-        const mobile = window.innerWidth < 768
-        const pinDist = window.innerHeight * (mobile ? 0.65 : 0.85)
-        // Scroll to just past the pin endpoint; Lenis picks this up smoothly
-        window.scrollTo({ top: hero2.offsetTop + pinDist + 40, behavior: 'smooth' })
-      }
-      hero2.addEventListener('click', onClick)
-      // Store for cleanup
-      ;(hero2 as HTMLElement & { __clickCleanup?: () => void }).__clickCleanup = () =>
-        hero2.removeEventListener('click', onClick)
-    }
-
     return () => {
       ctx.revert()
       ScrollTrigger.getAll().forEach(t => t.kill())
-      const h = heroRef.current as HTMLElement & { __clickCleanup?: () => void }
-      h?.__clickCleanup?.()
     }
   }, [prefersReduced, showCal])
 
@@ -309,8 +292,19 @@ export function HeroSection() {
       ref={heroRef}
       id="hero"
       style={{ height: '100svh', minHeight: 480 }}
-      className="relative overflow-hidden bg-[#060a12]"
-      aria-label="Hero — Enter the Lab"
+      className="relative overflow-hidden bg-[#060a12] cursor-pointer"
+      aria-label="Hero — Enter the Lab. Click to enter."
+      onClick={() => {
+        const mobile = window.innerWidth < 768
+        const pinDist = window.innerHeight * (mobile ? 0.65 : 0.85)
+        const targetY = (heroRef.current?.offsetTop ?? 0) + pinDist + 60
+        const lenis = (window as Window & { __lenis?: { scrollTo: (y: number, opts?: object) => void } }).__lenis
+        if (lenis) {
+          lenis.scrollTo(targetY, { duration: 0.9 })
+        } else {
+          window.scrollTo({ top: targetY, behavior: 'smooth' })
+        }
+      }}
     >
       {/* ── Scene: background photo + screen overlay ─────────────────────────
           This entire div is what GSAP scales during the scroll-zoom. */}

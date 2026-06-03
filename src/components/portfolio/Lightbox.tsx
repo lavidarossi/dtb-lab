@@ -19,7 +19,16 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
 
-  useEffect(() => { setSlideIdx(0) }, [item?.id])
+  useEffect(() => {
+    setSlideIdx(0)
+    // Preload all slides when item opens so swipes are instant
+    if (item?.slides && item.slides.length > 1) {
+      item.slides.forEach(src => {
+        const img = new window.Image()
+        img.src = src
+      })
+    }
+  }, [item?.id, item?.slides])
 
   // Keyboard navigation
   useEffect(() => {
@@ -138,14 +147,8 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
             {/* Image */}
             {item.type === 'image' && (
               <div className="relative w-full">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentSrc}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.18 }}
-                  >
+                {/* No AnimatePresence — images are preloaded so instant swap + fade via CSS is fastest */}
+                <div key={currentSrc} className="animate-fade-in-fast">
                     <Image
                       src={currentSrc}
                       alt={item.alt}
@@ -155,16 +158,14 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
                       quality={80}
                       priority
                     />
-                  </motion.div>
-                </AnimatePresence>
+                </div>
               </div>
             )}
 
-            {/* Video */}
+            {/* Video — no controls; autoplay muted loop */}
             {item.type === 'video' && (
               <video
                 src={item.src}
-                controls
                 autoPlay
                 muted
                 loop

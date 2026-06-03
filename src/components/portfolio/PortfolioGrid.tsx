@@ -95,8 +95,9 @@ export function PortfolioGrid() {
                     src={item.src}
                     muted
                     playsInline
-                    preload="metadata"
+                    preload="auto"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.001 }}
                     aria-hidden
                   />
                 ) : (
