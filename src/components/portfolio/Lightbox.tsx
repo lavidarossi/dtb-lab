@@ -21,11 +21,12 @@ export function Lightbox({ item, onClose, onPrev, onNext, hasPrev, hasNext }: Li
 
   useEffect(() => {
     setSlideIdx(0)
-    // Preload all slides when item opens so swipes are instant
+    // Preload the Next.js-optimised URLs (not raw paths) so swipes are instant.
+    // next/image serves from /_next/image?url=...&w=1080&q=80 — preload that exact URL.
     if (item?.slides && item.slides.length > 1) {
       item.slides.forEach(src => {
         const img = new window.Image()
-        img.src = src
+        img.src = `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=80`
       })
     }
   }, [item?.id, item?.slides])

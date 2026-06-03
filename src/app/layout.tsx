@@ -26,6 +26,10 @@ const BRAND    = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'DTB LAB'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+    shortcut: '/favicon.svg',
+  },
   title: {
     default: `${BRAND} — Music Poster & Event Graphic Designer`,
     template: `%s | ${BRAND}`,

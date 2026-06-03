@@ -295,14 +295,13 @@ export function HeroSection() {
       className="relative overflow-hidden bg-[#060a12] cursor-pointer"
       aria-label="Hero — Enter the Lab. Click to enter."
       onClick={() => {
-        const mobile = window.innerWidth < 768
-        const pinDist = window.innerHeight * (mobile ? 0.65 : 0.85)
-        const targetY = (heroRef.current?.offsetTop ?? 0) + pinDist + 60
-        const lenis = (window as Window & { __lenis?: { scrollTo: (y: number, opts?: object) => void } }).__lenis
+        type LenisLike = { scrollTo: (target: string | number | HTMLElement, opts?: object) => void }
+        const lenis = (window as Window & { __lenis?: LenisLike }).__lenis
         if (lenis) {
-          lenis.scrollTo(targetY, { duration: 0.9 })
+          // Lenis resolves #about's real offset including GSAP pin spacer
+          lenis.scrollTo('#about', { duration: 1.2, offset: -80 })
         } else {
-          window.scrollTo({ top: targetY, behavior: 'smooth' })
+          document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
         }
       }}
     >
