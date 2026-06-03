@@ -1,0 +1,26 @@
+# env
+.env
+.env*.local
+
+# deps / build
+/node_modules
+/.next/
+/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# OS
+.DS_Store
+
+# Claude Code internal files
+.claude/
+
+# Source asset folders (originals — already copied into public/)
+All portfolio projects/
+Artist posters/
+Event Posters/
+Concept Posters/
+Motion/
+background image/
+brand logos different colors/
+.vercel
