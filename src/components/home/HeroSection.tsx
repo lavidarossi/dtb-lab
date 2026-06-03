@@ -298,12 +298,17 @@ export function HeroSection() {
       onClick={() => {
         const about = document.getElementById('about')
         if (!about) return
-        // GSAP ScrollToPlugin shares the same ticker as Lenis so the
-        // animation drives directly through the pin with no conflicts.
+        // Lenis overrides document.scrollTop every frame — stop it first
+        // so GSAP ScrollToPlugin can animate the scroll without being fought.
+        type L = { stop: () => void; start: () => void }
+        const lenis = (window as Window & { __lenis?: L }).__lenis
+        lenis?.stop()
         gsap.to(window, {
+          scrollTo: { y: about.offsetTop, autoKill: false },
           duration: 1.2,
-          scrollTo: { y: about, offsetY: 80 },
           ease: 'power2.inOut',
+          onUpdate: () => ScrollTrigger.update(),
+          onComplete: () => lenis?.start(),
         })
       }}
     >
