@@ -298,18 +298,35 @@ export function HeroSection() {
       onClick={() => {
         const about = document.getElementById('about')
         if (!about) return
-        // Lenis overrides document.scrollTop every frame — stop it first
-        // so GSAP ScrollToPlugin can animate the scroll without being fought.
+
         type L = { stop: () => void; start: () => void }
         const lenis = (window as Window & { __lenis?: L }).__lenis
+        // Pause Lenis so it cannot override scrollTop on each frame
         lenis?.stop()
-        gsap.to(window, {
-          scrollTo: { y: about.offsetTop, autoKill: false },
-          duration: 1.2,
-          ease: 'power2.inOut',
-          onUpdate: () => ScrollTrigger.update(),
-          onComplete: () => lenis?.start(),
-        })
+
+        const startY  = window.scrollY
+        const endY    = about.getBoundingClientRect().top + window.scrollY
+        const dur     = 1100  // ms
+        const t0      = performance.now()
+
+        // Ease-in-out quad
+        const ease = (p: number) => p < 0.5 ? 2*p*p : -1 + (4 - 2*p)*p
+
+        const tick = (now: number) => {
+          const p = Math.min((now - t0) / dur, 1)
+          const y = startY + (endY - startY) * ease(p)
+          // Write directly — bypasses both Lenis and GSAP
+          document.documentElement.scrollTop = y
+          document.body.scrollTop = y          // Safari
+          ScrollTrigger.update()               // keep pin animation in sync
+          if (p < 1) {
+            requestAnimationFrame(tick)
+          } else {
+            lenis?.start()                     // hand control back to Lenis
+          }
+        }
+
+        requestAnimationFrame(tick)
       }}
     >
       {/* ── Scene: background photo + screen overlay ─────────────────────────
