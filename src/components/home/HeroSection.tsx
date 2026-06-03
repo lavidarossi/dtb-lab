@@ -2,9 +2,10 @@
 import { useRef, useLayoutEffect, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
 
 // ─── SCREEN_CORNERS ──────────────────────────────────────────────────────────
 // Four inner-glass corners as % of the image's INTRINSIC size.
@@ -295,14 +296,15 @@ export function HeroSection() {
       className="relative overflow-hidden bg-[#060a12] cursor-pointer"
       aria-label="Hero — Enter the Lab. Click to enter."
       onClick={() => {
-        type LenisLike = { scrollTo: (target: string | number | HTMLElement, opts?: object) => void }
-        const lenis = (window as Window & { __lenis?: LenisLike }).__lenis
-        if (lenis) {
-          // Lenis resolves #about's real offset including GSAP pin spacer
-          lenis.scrollTo('#about', { duration: 1.2, offset: -80 })
-        } else {
-          document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
-        }
+        const about = document.getElementById('about')
+        if (!about) return
+        // GSAP ScrollToPlugin shares the same ticker as Lenis so the
+        // animation drives directly through the pin with no conflicts.
+        gsap.to(window, {
+          duration: 1.2,
+          scrollTo: { y: about, offsetY: 80 },
+          ease: 'power2.inOut',
+        })
       }}
     >
       {/* ── Scene: background photo + screen overlay ─────────────────────────
