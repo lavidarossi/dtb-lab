@@ -97,7 +97,11 @@ export function PortfolioGrid() {
                     playsInline
                     preload="auto"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.001 }}
+                    onLoadedData={e => {
+                      const v = e.currentTarget as HTMLVideoElement
+                      v.currentTime = 0.001
+                      void v.play().then(() => v.pause()).catch(() => {})
+                    }}
                     aria-hidden
                   />
                 ) : (

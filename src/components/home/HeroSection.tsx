@@ -104,7 +104,6 @@ export function HeroSection() {
   const screenRef = useRef<HTMLDivElement>(null)
   const dImgRef   = useRef<HTMLImageElement>(null)
   const mImgRef   = useRef<HTMLImageElement>(null)
-  const gsapCtxRef = useRef<{ revert: () => void } | null>(null)
   const prefersReduced = useReducedMotion()
 
   // ── Calibrate state (dev/staging only; entire block tree-shaken in prod) ───
@@ -242,11 +241,8 @@ export function HeroSection() {
       }, 0.05)
     })
 
-    gsapCtxRef.current = ctx
-
     return () => {
       ctx.revert()
-      gsapCtxRef.current = null
       ScrollTrigger.getAll().forEach(t => t.kill())
     }
   }, [prefersReduced, showCal])
@@ -405,15 +401,7 @@ export function HeroSection() {
             {/* Main prompt — also a click target */}
             <button
               className="flex items-center gap-[0.3em] focus:outline-none"
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-              onClick={() => {
-                gsapCtxRef.current?.revert()
-                gsapCtxRef.current = null
-                ScrollTrigger.getAll().forEach(t => t.kill())
-                requestAnimationFrame(() => {
-                  document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
-                })
-              }}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'default' }}
             >
               <span
                 className="font-mono text-cream tracking-[0.18em] uppercase"
@@ -439,17 +427,7 @@ export function HeroSection() {
       <button
         className="hero-enter-text absolute bottom-8 sm:bottom-10 left-0 right-0
                    flex flex-col items-center gap-3 select-none focus:outline-none z-[200]"
-        aria-label="Enter the lab — scroll to content"
-        onClick={() => {
-          // Kill the GSAP pin entirely, then scroll — cleanest approach
-          gsapCtxRef.current?.revert()
-          gsapCtxRef.current = null
-          ScrollTrigger.getAll().forEach(t => t.kill())
-          // DOM resets synchronously; now scroll to #about at its real position
-          requestAnimationFrame(() => {
-            document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })
-          })
-        }}
+        aria-label="Enter the lab"
       >
         <span className="hidden sm:block font-mono font-bold text-base sm:text-lg tracking-[0.35em] uppercase text-cream neon-text-cream">
           SCROLL TO ENTER

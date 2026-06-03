@@ -61,7 +61,7 @@ export function FeaturedWork() {
                 className="group relative overflow-hidden rounded-lg aspect-square bg-surface-2 border border-border hover:border-accent/40 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {item.type === 'video' ? (
-                  <video src={item.src} muted playsInline preload="auto" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" aria-hidden onLoadedMetadata={e => { (e.currentTarget as HTMLVideoElement).currentTime = 0.001 }} />
+                  <video src={item.src} muted playsInline preload="auto" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" aria-hidden onLoadedData={e => { const v = e.currentTarget as HTMLVideoElement; v.currentTime = 0.001; void v.play().then(() => v.pause()).catch(() => {}) }} />
                 ) : (
                   <Image
                     src={item.src}
