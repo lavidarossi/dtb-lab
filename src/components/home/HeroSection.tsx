@@ -240,9 +240,26 @@ export function HeroSection() {
       }, 0.05)
     })
 
+    // ── Click anywhere on hero → scroll past the pin (completes the zoom) ──
+    const hero2 = heroRef.current
+    if (hero2) {
+      const onClick = () => {
+        const mobile = window.innerWidth < 768
+        const pinDist = window.innerHeight * (mobile ? 0.65 : 0.85)
+        // Scroll to just past the pin endpoint; Lenis picks this up smoothly
+        window.scrollTo({ top: hero2.offsetTop + pinDist + 40, behavior: 'smooth' })
+      }
+      hero2.addEventListener('click', onClick)
+      // Store for cleanup
+      ;(hero2 as HTMLElement & { __clickCleanup?: () => void }).__clickCleanup = () =>
+        hero2.removeEventListener('click', onClick)
+    }
+
     return () => {
       ctx.revert()
       ScrollTrigger.getAll().forEach(t => t.kill())
+      const h = heroRef.current as HTMLElement & { __clickCleanup?: () => void }
+      h?.__clickCleanup?.()
     }
   }, [prefersReduced, showCal])
 

@@ -73,6 +73,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${spaceMono.variable} ${dmSans.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Preload hero backgrounds — largest LCP assets */}
+        <link rel="preload" as="image" href="/backgrounds/Background.png" media="(min-width: 640px)" />
+        <link rel="preload" as="image" href="/backgrounds/bgmobile.png"   media="(max-width: 639px)" />
+      </head>
       <body className="bg-base text-cream antialiased">
         <SmoothScrollProvider>
           <CustomCursor />

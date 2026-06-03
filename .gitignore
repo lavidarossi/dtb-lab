@@ -16,11 +16,11 @@ next-env.d.ts
 .claude/
 
 # Source asset folders (originals — already copied into public/)
-All portfolio projects/
-Artist posters/
-Event Posters/
-Concept Posters/
-Motion/
-background image/
-brand logos different colors/
+/All portfolio projects/
+/Artist posters/
+/Event Posters/
+/Concept Posters/
+/Motion/
+/background image/
+/brand logos different colors/
 .vercel
