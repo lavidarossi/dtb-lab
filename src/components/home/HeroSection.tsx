@@ -467,7 +467,7 @@ export function HeroSection() {
           SCROLL TO ENTER THE LAB
         </span>
         <span className="sm:hidden font-mono font-bold text-base tracking-[0.35em] uppercase text-cream neon-text-cream dvd-bounce">
-          SWIPE UP TO ENTER THE LAB
+          SCROLL UP TO ENTER THE LAB
         </span>
         <div className="w-px h-8 sm:h-10 bg-gradient-to-b from-cream/60 to-transparent animate-pulse neon-line-cream" />
       </button>
