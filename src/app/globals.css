@@ -180,3 +180,52 @@
 .pin-spacer {
   pointer-events: none !important;
 }
+
+/* ─── Glitch intro animations ────────────────────────────────────────────── */
+@keyframes glitch-main {
+  0%, 100% { transform: none; opacity: 1; }
+  4%  { transform: skewX(8deg) translateX(-3px); opacity: 0.9; }
+  8%  { transform: skewX(-4deg) translateX(2px); }
+  15% { transform: none; opacity: 1; }
+  32% { transform: translateX(-5px); opacity: 0.85; }
+  34% { transform: translateX(5px) skewX(2deg); }
+  36% { transform: none; opacity: 1; }
+  60% { transform: translateX(3px); opacity: 0.95; }
+  62% { transform: translateX(-3px) skewX(-2deg); }
+  64% { transform: none; }
+  90% { opacity: 1; }
+  98% { opacity: 0.4; }
+}
+@keyframes glitch-r {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  3%  { clip-path: inset(15% 0 50% 0); transform: translateX(-6px); }
+  6%  { clip-path: inset(70% 0  5% 0); transform: translateX( 4px); }
+  9%  { clip-path: inset(0 0 100% 0);  transform: none; }
+  30% { clip-path: inset(40% 0 30% 0); transform: translateX(-5px); }
+  33% { clip-path: inset(0 0 100% 0);  transform: none; }
+  58% { clip-path: inset(25% 0 60% 0); transform: translateX(-4px); }
+  61% { clip-path: inset(0 0 100% 0);  transform: none; }
+}
+@keyframes glitch-b {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  3%  { clip-path: inset(55% 0 10% 0); transform: translateX( 6px); }
+  6%  { clip-path: inset(10% 0 65% 0); transform: translateX(-4px); }
+  9%  { clip-path: inset(0 0 100% 0);  transform: none; }
+  30% { clip-path: inset(60% 0 15% 0); transform: translateX( 5px); }
+  33% { clip-path: inset(0 0 100% 0);  transform: none; }
+  58% { clip-path: inset(10% 0 45% 0); transform: translateX( 4px); }
+  61% { clip-path: inset(0 0 100% 0);  transform: none; }
+}
+@keyframes glitch-bars {
+  0%,  100% { opacity: 0; }
+  3%  { opacity: 1; background: linear-gradient(transparent 15%,rgba(52,243,255,.06) 15.5%,rgba(52,243,255,.06) 18%,transparent 18%); }
+  6%  { opacity: 0; }
+  31% { opacity: 1; background: linear-gradient(transparent 65%,rgba(255,50,50,.05)  65.5%,rgba(255,50,50,.05)  68%,transparent 68%); }
+  34% { opacity: 0; }
+  59% { opacity: 1; background: linear-gradient(transparent 35%,rgba(52,243,255,.04) 35.5%,rgba(52,243,255,.04) 38%,transparent 38%); }
+  62% { opacity: 0; }
+}
+.animate-glitch-main { animation: glitch-main 1.5s ease-out forwards; }
+.animate-glitch-r    { animation: glitch-r    1.5s ease-out forwards; }
+.animate-glitch-b    { animation: glitch-b    1.5s ease-out forwards; }
+.animate-glitch-bars { animation: glitch-bars 1.5s ease-out forwards; }

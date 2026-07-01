@@ -81,6 +81,17 @@ export function ServicesSection() {
                       <span className="text-status/40">&gt; </span>
                       {svc.labNote}
                     </p>
+                    {svc.id === 'websites' && (
+                      <a
+                        href="https://dtb-web.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-1.5 font-mono text-xs text-accent/80 hover:text-accent tracking-widest uppercase transition-colors duration-200"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        View dtb-web.com →
+                      </a>
+                    )}
                   </div>
 
                   {/* Hover accent line */}

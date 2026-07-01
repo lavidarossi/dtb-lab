@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { CustomCursor } from '@/components/ui/CustomCursor'
 import { FloatingWhatsApp } from '@/components/ui/FloatingWhatsApp'
+import { GlitchIntro } from '@/components/ui/GlitchIntro'
 
 const spaceMono = Space_Mono({
   weight: ['400', '700'],
@@ -84,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-base text-cream antialiased">
         <SmoothScrollProvider>
+          <GlitchIntro />
           <CustomCursor />
           <Navbar />
           <main id="main-content" tabIndex={-1}>

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Menu, X, Instagram } from 'lucide-react'
+import { Menu, X, Instagram, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { quickWhatsApp } from '@/lib/whatsapp'
 
@@ -12,6 +12,8 @@ const NAV_LINKS = [
   { href: '/portfolio', label: 'Portfolio' },
   { href: '/booking',   label: 'Book'      },
 ]
+
+const DTB_WEB = 'https://dtb-web.com'
 
 const IG_HREF = 'https://www.instagram.com/dtb.lab?igsh=ZnU3azdzZ3diMGFs&utm_source=qr'
 
@@ -58,6 +60,16 @@ export function Navbar() {
 
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center gap-3">
+          <a
+            href={DTB_WEB}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cursor-hover
+            className="flex items-center gap-1.5 font-mono text-xs tracking-widest uppercase text-accent hover:text-accent-dim transition-colors duration-200"
+          >
+            DTB WEB
+            <ExternalLink size={10} />
+          </a>
           <a
             href={IG_HREF}
             target="_blank"
@@ -108,6 +120,17 @@ export function Navbar() {
                 </Link>
               </li>
             ))}
+            <li>
+              <a
+                href={DTB_WEB}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 font-mono text-sm tracking-widest uppercase text-accent py-1"
+              >
+                DTB WEB — Website Portfolio
+                <ExternalLink size={12} />
+              </a>
+            </li>
             <li className="flex items-center gap-3 pt-2 border-t border-border">
               <a
                 href={IG_HREF}

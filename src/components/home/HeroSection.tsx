@@ -99,11 +99,12 @@ function quadToMatrix3d(
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export function HeroSection() {
-  const heroRef   = useRef<HTMLElement>(null)
-  const sceneRef  = useRef<HTMLDivElement>(null)
-  const screenRef = useRef<HTMLDivElement>(null)
-  const dImgRef   = useRef<HTMLImageElement>(null)
-  const mImgRef   = useRef<HTMLImageElement>(null)
+  const heroRef          = useRef<HTMLElement>(null)
+  const sceneRef         = useRef<HTMLDivElement>(null)
+  const screenRef        = useRef<HTMLDivElement>(null)
+  const contentScalerRef = useRef<HTMLDivElement>(null)
+  const dImgRef          = useRef<HTMLImageElement>(null)
+  const mImgRef          = useRef<HTMLImageElement>(null)
   const prefersReduced = useReducedMotion()
 
   // ── Calibrate state (dev/staging only; entire block tree-shaken in prod) ───
@@ -140,9 +141,23 @@ export function HeroSection() {
     el.style.height          = `${H}px`
     el.style.transformOrigin = '0 0'
     el.style.transform       = `matrix3d(${quadToMatrix3d(W, H, tl, tr, br, bl)})`
-    // Base font-size: all em units inside scale with the screen width
-    el.style.fontSize        = `${Math.max(10, Math.min(20, W / 44))}px`
     el.style.opacity         = '1'
+
+    // Supersample the text layer so it stays crisp when GSAP zooms in.
+    // Mobile uses min (fit full screen); desktop uses max (fill viewport).
+    const tgtScale = mobile
+      ? Math.min(cw / W, ch / H) * 0.96
+      : Math.max(cw / W, ch / H) * 1.02
+    const ss = Math.min(Math.ceil(tgtScale * 1.1), 4)   // supersample factor, cap 4×
+    el.style.fontSize = `${Math.max(10, Math.min(20, W / 44)) * ss}px`
+
+    if (contentScalerRef.current) {
+      const cs = contentScalerRef.current.style
+      cs.transform       = `scale(${1 / ss}) translateZ(0)`
+      cs.transformOrigin = '0 0'
+      cs.width           = `${ss * 100}%`
+      cs.height          = `${ss * 100}%`
+    }
 
     // Push VP coords to state for calibrate handles (dev only — dead code in prod)
     if (process.env.NODE_ENV !== 'production') {
@@ -218,7 +233,9 @@ export function HeroSection() {
       const cy          = (tl[1] + tr[1] + br[1] + bl[1]) / 4
       const sw          = Math.hypot(tr[0] - tl[0], tr[1] - tl[1])
       const sh          = Math.hypot(bl[0] - tl[0], bl[1] - tl[1])
-      const targetScale = Math.max(cw / sw, ch / sh) * 1.02
+      const targetScale = mobile
+        ? Math.min(cw / sw, ch / sh) * 0.96   // fit full screen in viewport on mobile
+        : Math.max(cw / sw, ch / sh) * 1.02   // fill viewport on desktop
 
       const tl2 = gsap.timeline({
         scrollTrigger: {
@@ -353,70 +370,87 @@ export function HeroSection() {
             aria-hidden
           />
 
-          {/* OS UI — em units scale with the container's JS-set fontSize */}
-          <div className="relative z-20 h-full flex flex-col justify-center gap-[0.5em] px-[8%] py-[6%]">
+          {/* Content scaler — renders text at ss× native resolution then counter-scales.
+              Own GPU layer (translateZ) stays sharp when parent scene is GSAP-zoomed. */}
+          <div
+            ref={contentScalerRef}
+            className="absolute inset-0 z-20"
+            style={{ transformOrigin: '0 0' }}
+          >
+            <div className="h-full flex flex-col justify-center gap-[0.5em] px-[8%] py-[6%]">
 
-            {/* Status bar */}
-            <div className="flex items-center justify-between">
-              <span className="font-mono tracking-[0.18em] uppercase text-accent/55" style={{ fontSize: '0.62em' }}>
-                DTB LAB OS&nbsp;&nbsp;v2.1
-              </span>
-              <div className="flex items-center gap-[0.4em]">
-                <span
-                  className="inline-block rounded-full animate-screen-dot"
-                  style={{ width: '0.45em', height: '0.45em', background: '#34F3FF' }}
-                  aria-hidden
-                />
-                <span className="font-mono tracking-widest uppercase text-accent/45" style={{ fontSize: '0.58em' }}>
-                  ACTIVE
+              {/* Status bar */}
+              <div className="flex items-center justify-between">
+                <span className="font-mono tracking-[0.18em] uppercase text-accent/55" style={{ fontSize: '0.62em' }}>
+                  DTB LAB OS&nbsp;&nbsp;v2.1
                 </span>
-              </div>
-            </div>
-
-            <div className="h-px bg-accent/12" aria-hidden />
-
-            {/* Boot log */}
-            <div className="flex-1 flex flex-col justify-center gap-[0.5em]">
-              {([
-                ['Creative engine',   'OK'   ],
-                ['Lab environment',   'OK'   ],
-                ['Test protocols',    'READY'],
-                ['Aesthetic matrix',  'READY'],
-              ] as [string, string][]).map(([lbl, s]) => (
-                <div key={lbl} className="flex items-baseline gap-[0.6em]">
-                  <span className="font-mono text-cream/22 shrink-0" style={{ fontSize: '0.58em' }}>&gt;</span>
-                  <span className="font-mono text-cream/48 flex-1 tracking-wide" style={{ fontSize: '0.58em' }}>{lbl}</span>
+                <div className="flex items-center gap-[0.4em]">
                   <span
-                    className={`font-mono tracking-widest shrink-0 ${s === 'OK' ? 'text-accent/55' : 'text-accent/88'}`}
-                    style={{ fontSize: '0.55em' }}
-                  >
-                    {s}
+                    className="inline-block rounded-full animate-screen-dot"
+                    style={{ width: '0.45em', height: '0.45em', background: '#34F3FF' }}
+                    aria-hidden
+                  />
+                  <span className="font-mono tracking-widest uppercase text-accent/45" style={{ fontSize: '0.58em' }}>
+                    ACTIVE
                   </span>
                 </div>
-              ))}
+              </div>
+
+              <div className="h-px bg-accent/12" aria-hidden />
+
+              {/* Boot log */}
+              <div className="flex-1 flex flex-col justify-center gap-[0.5em]">
+                {([
+                  ['Creative engine',   'OK',          false],
+                  ['Lab environment',   'OK',          false],
+                  ['Test protocols',    'READY',       false],
+                  ['Aesthetic matrix',  'READY',       false],
+                  ['Web studio',        'dtb-web.com', true ],
+                ] as [string, string, boolean][]).map(([lbl, s, isLink]) => (
+                  <div key={lbl} className="flex items-baseline gap-[0.6em]">
+                    <span className="font-mono text-cream/22 shrink-0" style={{ fontSize: '0.58em' }}>&gt;</span>
+                    <span className="font-mono text-cream/48 flex-1 tracking-wide" style={{ fontSize: '0.58em' }}>{lbl}</span>
+                    {isLink ? (
+                      <a
+                        href="https://dtb-web.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono tracking-widest shrink-0 text-accent/88 hover:text-accent transition-colors duration-150"
+                        style={{ fontSize: '0.55em', cursor: 'pointer' }}
+                      >
+                        {s}
+                      </a>
+                    ) : (
+                      <span
+                        className={`font-mono tracking-widest shrink-0 ${s === 'OK' ? 'text-accent/55' : 'text-accent/88'}`}
+                        style={{ fontSize: '0.55em' }}
+                      >
+                        {s}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="h-px bg-accent/12" aria-hidden />
+
+              {/* Main prompt */}
+              <div className="flex items-center gap-[0.3em]">
+                <span
+                  className="font-mono text-cream tracking-[0.18em] uppercase"
+                  style={{ fontSize: '1em' }}
+                >
+                  ENTER THE LAB
+                </span>
+                <span
+                  className="inline-block bg-cream animate-blink shrink-0"
+                  style={{ width: '0.1em', height: '1em' }}
+                  aria-hidden
+                />
+              </div>
             </div>
-
-            <div className="h-px bg-accent/12" aria-hidden />
-
-            {/* Main prompt — also a click target */}
-            <button
-              className="flex items-center gap-[0.3em] focus:outline-none"
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'default' }}
-            >
-              <span
-                className="font-mono text-cream tracking-[0.18em] uppercase"
-                style={{ fontSize: '1em' }}
-              >
-                ENTER THE LAB
-              </span>
-              <span
-                className="inline-block bg-cream animate-blink shrink-0"
-                style={{ width: '0.1em', height: '1em' }}
-                aria-hidden
-              />
-            </button>
           </div>
-          {/* ↑ closes OS UI z-20 div */}
+          {/* ↑ closes content scaler */}
           </div>
           {/* ↑ closes inner clip wrapper (overflow-hidden, no transform) */}
         </div>
@@ -430,10 +464,10 @@ export function HeroSection() {
         aria-label="Enter the lab"
       >
         <span className="hidden sm:block font-mono font-bold text-base sm:text-lg tracking-[0.35em] uppercase text-cream neon-text-cream">
-          SCROLL TO ENTER
+          SCROLL TO ENTER THE LAB
         </span>
         <span className="sm:hidden font-mono font-bold text-base tracking-[0.35em] uppercase text-cream neon-text-cream dvd-bounce">
-          SWIPE UP TO ENTER
+          SWIPE UP TO ENTER THE LAB
         </span>
         <div className="w-px h-8 sm:h-10 bg-gradient-to-b from-cream/60 to-transparent animate-pulse neon-line-cream" />
       </button>

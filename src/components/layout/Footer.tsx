@@ -49,6 +49,17 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href="https://dtb-web.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent/70 hover:text-accent transition-colors duration-200 text-sm flex items-center gap-1.5"
+                >
+                  DTB WEB — Website Portfolio
+                  <svg viewBox="0 0 12 12" className="w-3 h-3 fill-none stroke-current shrink-0" strokeWidth="1.5" aria-hidden><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+                </a>
+              </li>
             </ul>
           </nav>
 

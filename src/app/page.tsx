@@ -54,13 +54,15 @@ export default function HomePage() {
               >
                 Get a website →
               </Link>
-              <Link
-                href="/portfolio"
+              <a
+                href="https://dtb-web.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 data-cursor-hover
-                className="inline-flex items-center justify-center gap-2 px-8 py-3 border border-cream/20 text-cream/70 font-mono text-xs tracking-widest uppercase rounded hover:border-cream/40 hover:text-cream transition-all duration-200 whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 border border-accent/30 text-accent/80 font-mono text-xs tracking-widest uppercase rounded hover:border-accent hover:text-accent transition-all duration-200 whitespace-nowrap"
               >
-                View portfolio
-              </Link>
+                Visit dtb-web.com ↗
+              </a>
             </div>
           </div>
         </div>
