@@ -440,7 +440,7 @@ export function HeroSection() {
                   className="font-mono text-cream tracking-[0.18em] uppercase"
                   style={{ fontSize: '1em' }}
                 >
-                  ENTER THE LAB
+                  SCROLL TO ENTER THE LAB
                 </span>
                 <span
                   className="inline-block bg-cream animate-blink shrink-0"
